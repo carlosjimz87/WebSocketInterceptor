@@ -5,9 +5,7 @@ plugins {
 
 android {
     namespace = "com.carlosjimz87.wssecure"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -39,6 +37,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     // Okhttp
+    api(platform(libs.okhttp.bom))
     api(libs.okhttp)
     api(libs.logging.interceptor)
     // Coroutines
