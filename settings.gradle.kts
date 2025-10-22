@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "WebSocketInterceptor5"
 include(":app")
- 
+include(":wssecure")
