@@ -1,4 +1,4 @@
-package com.carlosjimz87.websocketinterceptor5
+package com.carlosjimz87.websocketinterceptor5.ui.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,10 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.carlosjimz87.websocketinterceptor5.providers.AuthStore
 import com.carlosjimz87.websocketinterceptor5.ui.theme.WebSocketInterceptor5Theme
+import org.koin.androidx.compose.koinViewModel
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,10 +40,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WebSocketInterceptor5Theme {
-                val vm: MainViewModel = viewModel()
+                val vm: MainViewModel = koinViewModel()
                 val log by vm.log.collectAsState()
+                val state by vm.state.collectAsState()
 
-                var token by remember { mutableStateOf("demo-token-123") }
+                var token by remember { mutableStateOf(AuthStore.currentAccessToken) }
                 var msg by remember { mutableStateOf("Hello from Android!") }
 
                 Scaffold(
@@ -50,22 +52,25 @@ class MainActivity : ComponentActivity() {
                     topBar = { StableTopBar("WebSocket + Authorization header") }
                 ) { innerPadding ->
                     Column(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .padding(16.dp)
-                            .fillMaxSize(),
+                        modifier = Modifier.padding(innerPadding).padding(16.dp).fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        // Status chip
+                        StatusChip(state)
+
                         OutlinedTextField(
                             value = token,
-                            onValueChange = { token = it },
+                            onValueChange = {
+                                token = it
+                                AuthStore.currentAccessToken = it   // TokenProvider reads this
+                            },
                             label = { Text("Bearer token") },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
 
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { vm.connect(token) }) { Text("Connect") }
+                            Button(onClick = { vm.connect() }) { Text("Connect") }
                             Button(onClick = { vm.disconnect() }) { Text("Disconnect") }
                         }
 
@@ -110,5 +115,29 @@ fun StableTopBar(title: String) {
                 style = MaterialTheme.typography.titleLarge
             )
         }
+    }
+}
+
+@Composable
+fun StatusChip(state: MainViewModel.ConnState) {
+    val (label, color) = when (state) {
+        MainViewModel.ConnState.Disconnected -> "Disconnected" to MaterialTheme.colorScheme.outline
+        MainViewModel.ConnState.Connecting   -> "Connecting…"  to MaterialTheme.colorScheme.tertiary
+        MainViewModel.ConnState.Open         -> "Open"         to MaterialTheme.colorScheme.primary
+        MainViewModel.ConnState.Closing      -> "Closing…"     to MaterialTheme.colorScheme.secondary
+        MainViewModel.ConnState.Closed       -> "Closed"       to MaterialTheme.colorScheme.secondary
+        MainViewModel.ConnState.Failure      -> "Failure"      to MaterialTheme.colorScheme.error
+    }
+    Surface(
+        color = color.copy(alpha = 0.15f),
+        tonalElevation = 1.dp,
+        shape = MaterialTheme.shapes.large
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            color = color,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }

@@ -1,9 +1,11 @@
 package com.carlosjimz87.wssecure.di
 
+import com.carlosjimz87.wssecure.Constants
 import com.carlosjimz87.wssecure.client.WsClient
 import com.carlosjimz87.wssecure.client.buildWsOkHttp
 import com.carlosjimz87.wssecure.data.envelope.HmacEnvelopeSigner
 import com.carlosjimz87.wssecure.data.envelope.WsEnvelopeSigner
+import com.carlosjimz87.wssecure.data.model.WsConfig
 import com.carlosjimz87.wssecure.data.plugin.AuthorizationHeaderPlugin
 import com.carlosjimz87.wssecure.data.plugin.QueryTokenPlugin
 import com.carlosjimz87.wssecure.data.plugin.WsPlugin
@@ -12,11 +14,10 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val WsSecureModule = module {
-
-    // App must provide these two in its own module:
-    // single<TokenProvider> { ... }
-    // single<WsConfig> { ... }
-
+    // Configuration
+    single {
+        WsConfig(wsUrl = Constants.BASE_URL)
+    }
     // Default plugins
     factory<WsPlugin>(named("auth-header")) { AuthorizationHeaderPlugin(get()) }
     factory<WsPlugin>(named("query-token")) { QueryTokenPlugin(get()) }
@@ -27,11 +28,16 @@ val WsSecureModule = module {
     }
 
     // Optional message signer (demo: uses token as secret)
+    // Note: The app module will need to provide a TokenProvider implementation
     single<WsEnvelopeSigner> { HmacEnvelopeSigner { get<TokenProvider>().token() } }
 
-    // Dedicated OkHttp
-    single { buildWsOkHttp(get()) }
-
     // The client
-    single { WsClient(config = get(), client = get(), plugins = get(), signer = get()) }
+    single {
+        WsClient(
+            config = get(),
+            client = buildWsOkHttp(get()),
+            plugins = get(),
+            signer = getOrNull() // Use getOrNull in case the app doesn't define a signer
+        )
+    }
 }

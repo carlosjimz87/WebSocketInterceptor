@@ -3,6 +3,7 @@
 
     <application
         android:allowBackup="true"
+        android:name=".App"
         android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WebSocketInterceptor5" >
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.presentation.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.WebSocketInterceptor5" >
             <intent-filter>
