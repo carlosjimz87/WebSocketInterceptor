@@ -1,14 +1,18 @@
 package com.carlosjimz87.websocketinterceptor5
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import okhttp3.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 import kotlin.time.Duration
 
 class WebSocketManager(
     private val client: OkHttpClient = OkHttpClient.Builder()
         .pingInterval(Duration.parse("200s"))
         .build(),
-    private val url: String = "wss://echo.websocket.events"
+    private val url: String = "ws://10.0.2.2:8000/ws"
 ) {
 
     val events =
