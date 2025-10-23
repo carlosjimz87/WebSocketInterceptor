@@ -28,7 +28,6 @@ val WsSecureModule = module {
     }
 
     // Optional message signer (demo: uses token as secret)
-    // Note: The app module will need to provide a TokenProvider implementation
     single<WsEnvelopeSigner> { HmacEnvelopeSigner { get<TokenProvider>().token() } }
 
     // The client
