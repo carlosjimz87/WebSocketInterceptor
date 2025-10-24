@@ -3,6 +3,14 @@
 This Android project demonstrates a **secure and modular WebSocket connection system** using Kotlin, Jetpack Compose, and **Koin** dependency injection.  
 It connects to a FastAPI WebSocket backend, automatically injecting authorization headers during the HTTP handshake — much like how an **interceptor** would work in REST clients.
 
+<table>
+  <tr>
+    <td align="center"><img src="captures/capture1.png" width="250"/><br/>Connected state</td>
+    <td align="center"><img src="captures/capture2.png" width="250"/><br/>Sending messages</td>
+    <td align="center"><img src="captures/capture3.png" width="250"/><br/>Disconnected state</td>
+  </tr>
+</table>
+
 ## 📁 Project Structure
 
 ```
